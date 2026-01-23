@@ -1,0 +1,27 @@
+.authsContainer { 
+  background: radial-gradient(circle, #625e61, #000000); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh; 
+  margin: 0; 
+  padding-top: 0px;
+}
+
+.loginBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.loginCard {
+  background: rgba(255, 255, 255, 0.703);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  color: rgb(0, 0, 0);
+  box-shadow: 0 8px 20px rgba(0, 170, 255, 0.6);
+}

@@ -1,0 +1,21 @@
+body {
+  padding-top: 64px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.dropdown-menu {
+  background-color: black;
+}
+
+.dropdown-menu a {
+  color: #fff !important;
+  padding: 10px 15px;
+  display: block;
+}
+
+.dropdown-menu a:hover {
+  background-color: #1E90FF;
+}
