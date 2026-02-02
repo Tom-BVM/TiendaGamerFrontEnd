@@ -7,27 +7,31 @@ function Auths() {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
-  const handleRegistro = (event) => {
+  const handleRegistro = async (event) => {
     event.preventDefault();
     const form = event.target;
-    const resultado = registrarUsuario({
+
+    const resultado = await registrarUsuario({
       nombre: form.nombre.value,
       email: form.email.value,
       password: form.password.value,
       confirmPassword: form["confirm-password"].value,
       fechaNacimiento: form.fechaNacimiento.value,
     });
+
     alert(resultado.mensaje);
     if (resultado.ok) setIsLogin(true);
   };
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     const form = event.target;
-    const resultado = iniciarSesion({
+
+    const resultado = await iniciarSesion({
       email: form["login-email"].value,
       password: form["login-password"].value,
     });
+
     alert(resultado.mensaje);
 
     if (resultado.ok) {
@@ -41,7 +45,7 @@ function Auths() {
         <div className={styles.loginCard}>
           {isLogin ? (
             <>
-              { /*Iniciar Sesión*/ }
+              {/* Iniciar Sesión */}
               <h3 className="text-center mb-4">Iniciar Sesión</h3>
               <form id="login" onSubmit={handleLogin}>
                 <div className="mb-3">
@@ -62,7 +66,7 @@ function Auths() {
             </>
           ) : (
             <>
-              { /*Crear Cuenta*/ }
+              {/* Crear Cuenta */}
               <h3 className="text-center mb-4">Crear Cuenta</h3>
               <form id="registro" onSubmit={handleRegistro}>
                 <div className="mb-3">

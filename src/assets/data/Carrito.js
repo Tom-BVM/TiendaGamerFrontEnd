@@ -1,11 +1,11 @@
-//transformar la monea a la moneda chilena
+const API_URL = "http://localhost:8080";
+
 const formatoCLP = new Intl.NumberFormat("es-CL", {
   style: "currency",
   currency: "CLP",
   minimumFractionDigits: 0,
 });
 
-//guardar y obetener carrito
 export function obtenerCarrito() {
   return JSON.parse(localStorage.getItem("carrito")) || [];
 }
@@ -14,40 +14,41 @@ export function guardarCarrito(carrito) {
   localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-// Agregar producto al carrito
-export function agregarAlCarrito(nombre, precio) {
+export function agregarAlCarrito(producto) {
   let carrito = obtenerCarrito();
 
-  const productoExistente = carrito.find((item) => item.nombre === nombre);
+  const productoExistente = carrito.find((item) => item.id === producto.id);
 
   if (productoExistente) {
     productoExistente.cantidad += 1;
   } else {
-    carrito.push({ nombre, precio, cantidad: 1 });
+    carrito.push({ id: producto.id, nombre: producto.nombre, precio: producto.precio, cantidad: 1 });
   }
 
   guardarCarrito(carrito);
-  alert(`${nombre} agregado al carrito`);
+  alert(`${producto.nombre} agregado al carrito`);
 }
 
-// Eliminar producto por índice
 export function eliminarProducto(index) {
   let carrito = obtenerCarrito();
-  carrito.splice(index, 1);
+
+  if (carrito[index].cantidad > 1) {
+    carrito[index].cantidad -= 1;
+  } else {
+    carrito.splice(index, 1);
+  }
+
   guardarCarrito(carrito);
 }
 
-// Vaciar carrito
 export function vaciarCarrito() {
   localStorage.removeItem("carrito");
 }
 
-// Calcular total con descuento si aplica
 export function calcularTotal() {
   const carrito = obtenerCarrito();
   let subtotal = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
 
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
   const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo")) || null;
 
   let total = subtotal;
@@ -58,8 +59,7 @@ export function calcularTotal() {
   return { subtotal, total };
 }
 
-// Finalizar compra
-export function finalizarCompra() {
+export async function finalizarCompra() {
   const carrito = obtenerCarrito();
 
   if (carrito.length === 0) {
@@ -67,25 +67,59 @@ export function finalizarCompra() {
     return;
   }
 
-  let resumen = "Resumen de tu compra:\n\n";
-  let subtotal = 0;
-
-  carrito.forEach((item) => {
-    resumen += `${item.nombre} - ${item.cantidad} x ${formatoCLP.format(item.precio)}\n`;
-    subtotal += item.precio * item.cantidad;
-  });
-
   const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo")) || null;
-
-  let total = subtotal;
-  if (usuarioActivo?.descuento) {
-    total = subtotal * 0.8;
-    resumen += `\nDescuento aplicado: 20%`;
+  if (!usuarioActivo) {
+    alert("Debes iniciar sesión para finalizar la compra.");
+    return;
   }
 
-  resumen += `\n\nTotal a pagar: ${formatoCLP.format(total)}`;
+  const { subtotal, total } = calcularTotal();
 
-  alert(resumen);
+  try {
+    
+    const pedidoRes = await fetch(`${API_URL}/pedidos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fecha: new Date().toISOString(),
+        total,
+        auths: { id: usuarioActivo.id }
+      })
+    });
 
-  vaciarCarrito();
+    if (!pedidoRes.ok) throw new Error("Error al crear pedido");
+    const pedido = await pedidoRes.json();
+
+    for (const item of carrito) {
+      const detalleRes = await fetch(`${API_URL}/detallepedidos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cantidad: item.cantidad,
+          precioUnitario: item.precio,
+          pedidoId: pedido.id,
+          productoId: item.id
+        })
+      });
+      if (!detalleRes.ok) throw new Error("Error al crear detalle de pedido");
+    }
+
+    let resumen = "Resumen de tu compra:\n\n";
+    carrito.forEach((item) => {
+      const precioTotalItem = item.precio * item.cantidad;
+      resumen += `${item.nombre} - ${item.cantidad} x ${formatoCLP.format(item.precio)} = ${formatoCLP.format(precioTotalItem)}\n`;
+    });
+
+    if (usuarioActivo?.descuento) {
+      resumen += `\nDescuento aplicado: 20%`;
+    }
+
+    resumen += `\n\nTotal a pagar: ${formatoCLP.format(total)}`;
+    alert(resumen);
+
+    vaciarCarrito();
+  } catch (err) {
+    console.error("Error al finalizar compra:", err);
+    alert("Hubo un problema al procesar tu compra.");
+  }
 }

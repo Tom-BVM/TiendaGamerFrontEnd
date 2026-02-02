@@ -1,14 +1,18 @@
-// Funciones para manejar usuarios en localStorage
-export function obtenerUsuarios() {
-  return JSON.parse(localStorage.getItem("usuarios")) || [];
+const API_URL = "http://localhost:8080/auths";
+
+export async function obtenerUsuarios() {
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error("Error al obtener usuarios");
+    return await res.json();
+  } catch (err) {
+    console.error("Error al obtener usuarios:", err);
+    return [];
+  }
 }
 
-export function guardarUsuarios(usuarios) {
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
-}
+export async function registrarUsuario({ nombre, email, password, confirmPassword, fechaNacimiento }) {
 
-// Registrar usuario
-export function registrarUsuario({ nombre, email, password, confirmPassword, fechaNacimiento }) {
   if (!nombre || !email || !password || !confirmPassword || !fechaNacimiento) {
     return { ok: false, mensaje: "Por favor completa todos los campos." };
   }
@@ -21,7 +25,6 @@ export function registrarUsuario({ nombre, email, password, confirmPassword, fec
     return { ok: false, mensaje: "Las contraseñas no coinciden." };
   }
 
-  // Validar edad
   const nacimiento = new Date(fechaNacimiento);
   const hoy = new Date();
   let edad = hoy.getFullYear() - nacimiento.getFullYear();
@@ -33,38 +36,51 @@ export function registrarUsuario({ nombre, email, password, confirmPassword, fec
     return { ok: false, mensaje: "Debes ser mayor de 18 años para registrarte." };
   }
 
-  let usuarios = obtenerUsuarios();
-  const existe = usuarios.find((u) => u.email === email);
-  if (existe) {
-    return { ok: false, mensaje: "Este correo ya está registrado." };
+  const nuevoUsuario = {
+    username: nombre.trim(),
+    email: email.trim(),
+    password: password,
+    role: "USER"
+  };
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevoUsuario)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return { ok: false, mensaje: `No se pudo registrar el usuario: ${errorText}` };
+    }
+
+    const data = await res.json();
+    return { ok: true, mensaje: "Registro exitoso. Ahora puedes iniciar sesión.", usuario: data };
+  } catch (err) {
+    console.error("Error al registrar usuario:", err);
+    return { ok: false, mensaje: "Error al conectar con el servidor." };
   }
-
-  // Validación descuento por correo
-  let descuento = false;
-  if (email.endsWith("@duoc.cl")) {
-    descuento = true;
-  }
-
-  usuarios.push({ nombre, email, password, fechaNacimiento, descuento });
-  guardarUsuarios(usuarios);
-
-  return { ok: true, mensaje: "Registro exitoso. Ahora puedes iniciar sesión." };
 }
 
-// Iniciar sesión
-export function iniciarSesion({ email, password }) {
+export async function iniciarSesion({ email, password }) {
   if (!email || !password) {
     return { ok: false, mensaje: "Por favor ingresa tu correo y contraseña." };
   }
 
-  let usuarios = obtenerUsuarios();
-  const usuario = usuarios.find((u) => u.email === email && u.password === password);
+  try {
+    const usuarios = await obtenerUsuarios();
+    const usuario = usuarios.find((u) => u.email === email && u.password === password);
 
-  if (usuario) {
-    localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
-    return { ok: true, mensaje: `Bienvenido ${usuario.nombre}`, usuario };
-  } else {
-    return { ok: false, mensaje: "Correo o contraseña incorrectos." };
+    if (usuario) {
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+      return { ok: true, mensaje: `Bienvenido ${usuario.username}`, usuario };
+    } else {
+      return { ok: false, mensaje: "Correo o contraseña incorrectos." };
+    }
+  } catch (err) {
+    console.error("Error al iniciar sesión:", err);
+    return { ok: false, mensaje: "Error al conectar con el servidor." };
   }
 }
 

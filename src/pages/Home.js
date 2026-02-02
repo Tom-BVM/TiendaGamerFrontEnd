@@ -61,7 +61,7 @@ function Home() {
                 <p className="fw-bold text-dark">$359.990</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => agregarAlCarrito("Silla Gamer ASUS ROG Chariot Core", 359990)}
+                  onClick={() => agregarAlCarrito({ nombre: "Silla Gamer ASUS ROG Chariot Core", precio: 359990 })}
                 >
                   Agregar
                 </button>
@@ -77,7 +77,7 @@ function Home() {
                 <p className="fw-bold text-dark">$49.990</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => agregarAlCarrito("Teclado Logitech G312 Prodigy RGB", 49990)}
+                  onClick={() => agregarAlCarrito({ nombre: "Teclado Logitech G312 Prodigy Led RGB", precio: 49990 })}
                 >
                   Agregar
                 </button>
@@ -93,7 +93,7 @@ function Home() {
                 <p className="fw-bold text-dark">$1.499.990</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => agregarAlCarrito("Monitor Asus ROG Swift 4K OLED 32", 1499990)}
+                  onClick={() => agregarAlCarrito({ nombre: "Monitor Asus ROG Swift 4K OLED 32\"", precio: 1499990 })}
                 >
                   Agregar
                 </button>
@@ -109,7 +109,7 @@ function Home() {
                 <p className="fw-bold text-dark">$569.990</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => agregarAlCarrito("AMD Ryzen 7 9800X3D", 569990)}
+                  onClick={() => agregarAlCarrito({ nombre: "AMD Ryzen 7 9800X3D", precio: 569990 })}
                 >
                   Agregar
                 </button>
@@ -125,7 +125,7 @@ function Home() {
                 <p className="fw-bold text-dark">$1.299.990</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => agregarAlCarrito("MSI RTX 5070Ti", 1299990)}
+                  onClick={() => agregarAlCarrito({ nombre: "MSI RTX 5070Ti", precio: 1299990 })}
                 >
                   Agregar
                 </button>

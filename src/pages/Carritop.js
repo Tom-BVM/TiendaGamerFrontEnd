@@ -8,6 +8,12 @@ import {
   finalizarCompra,
 } from "../assets/data/Carrito";  
 
+const formatoCLP = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  minimumFractionDigits: 0,
+});
+
 function Carrito() {
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -49,29 +55,32 @@ function Carrito() {
             {items.length === 0 ? (
               <p className="text-center">Tu carrito está vacío</p>
             ) : (
-              items.map((item, index) => (
-                <div
-                  key={index}
-                  className="list-group-item d-flex justify-content-between"
-                >
-                  <span>
-                    {item.nombre} x {item.cantidad}
-                  </span>
-                  <span>${item.precio}</span>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleEliminar(index)}
+              items.map((item, index) => {
+                const precioTotalItem = item.precio * item.cantidad;
+                return (
+                  <div
+                    key={index}
+                    className="list-group-item d-flex justify-content-between"
                   >
-                    Eliminar
-                  </button>
-                </div>
-              ))
+                    <span>
+                      {item.nombre} x {item.cantidad}
+                    </span>
+                    <span>{formatoCLP.format(precioTotalItem)}</span>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleEliminar(index)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                );
+              })
             )}
           </div>
 
           <div className="d-flex justify-content-between">
             <span className="fw-bold">Total:</span>
-            <span className="fw-bold">${total}</span>
+            <span className="fw-bold">{formatoCLP.format(total)}</span>
           </div>
 
           <button

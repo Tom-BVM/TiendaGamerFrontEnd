@@ -22,7 +22,7 @@ function Accesorios() {
               <p className="fw-bold text-dark">$49.990</p>
               <button
                 className="btn btn-primary"
-                onClick={() => agregarAlCarrito("Teclado Logitech G312 Prodigy Led RGB", 49990)}
+                onClick={() => agregarAlCarrito({ nombre: "Teclado Logitech G312 Prodigy Led RGB", precio: 49990 })}
               >
                 Agregar
               </button>
@@ -42,7 +42,7 @@ function Accesorios() {
               <p className="fw-bold text-dark">$1.499.990</p>
               <button
                 className="btn btn-primary"
-                onClick={() => agregarAlCarrito("Monitor Asus ROG swift 4k OLED 32\"", 1499990)}
+                onClick={() => agregarAlCarrito({ nombre: "Monitor Asus ROG swift 4k OLED 32\"", precio: 1499990 })}
               >
                 Agregar
               </button>
